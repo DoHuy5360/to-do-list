@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+    <title>Hello World!</title>
+    <link rel="stylesheet" href="../styles/popup.css">
+</head>
+
+<body>
+    <div class="content">
+        <div class="flex-col">
+            <button type="button" id="close">Close</button>
+            <textarea name="" id="input"></textarea>
+            <div class="flex">
+                <label for="">Category</label>
+                <select name="" id="">
+                    <option value="">Coding</option>
+                    <option value="">Writing</option>
+                </select>
+            </div>
+            <button type="button" id="submit">Submit</button>
+        </div>
+    </div>
+    <script src="../scripts/popup.js"></script>
+</body>
+
+</html>
