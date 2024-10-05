@@ -3,7 +3,7 @@
 	"version": "1.0.0",
 	"description": "",
 	"main": "main.js",
-	"type": "commonjs",
+	"type": "module",
 	"scripts": {
 		"start": "npx electronmon ."
 	},
@@ -11,5 +11,9 @@
 	"license": "ISC",
 	"devDependencies": {
 		"electron": "32.1.2"
+	},
+	"dependencies": {
+		"dotenv": "^16.4.5",
+		"mongodb": "^6.9.0"
 	}
 }

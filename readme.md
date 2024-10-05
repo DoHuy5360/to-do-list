@@ -1,7 +1,7 @@
 # Project aim
 
 - [x] Display popup
-- [ ] Connect DB
+- [x] Connect DB
 - [ ] Remind schedule
 - [ ] Calendar
 - [ ] Report & Statistical
@@ -10,3 +10,4 @@
     - [ ] export
     - [ ] screenshot
 - [ ] Mobile implement
+- [ ] Working rules & consistency
