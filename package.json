@@ -3,16 +3,17 @@
 	"version": "1.0.0",
 	"description": "",
 	"main": "main.js",
-	"type": "module",
+	"type": "commonjs",
 	"scripts": {
 		"start": "npx electronmon ."
 	},
 	"author": "",
 	"license": "ISC",
 	"devDependencies": {
-		"electron": "32.1.2"
+		"electron": "^32.1.2"
 	},
 	"dependencies": {
+		"cron": "^3.1.7",
 		"dotenv": "^16.4.5",
 		"mongodb": "^6.9.0"
 	}

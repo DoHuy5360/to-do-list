@@ -1,7 +1,7 @@
 
-import { MongoClient, ServerApiVersion } from 'mongodb';
+const { MongoClient, ServerApiVersion } = require('mongodb');
 
-import dotenv from 'dotenv'
+const dotenv = require('dotenv');
 
 dotenv.config()
 
@@ -17,14 +17,24 @@ class MongodbManager {
         this.database = this.client.db(dbName)
     }
     async connect() {
-        // Connect the client to the server	(optional starting in v4.7)
+        let isConnectSuccessfully = false
         try {
             await this.client.connect();
-            this.de = this.database.collection("de")
+            isConnectSuccessfully = true
+            this.isConnected = true
+            this.setupCollections();
         } catch (error) {
-            console.warn("Fail to connect mongodb");
             await this.client.close();
+        } finally {
+            if (isConnectSuccessfully) {
+                console.warn("Connect database successfully");
+            } else {
+                console.error("Error occurred when ping to the database");
+            }
         }
+    }
+    setupCollections() {
+        this.events = this.database.collection("events")
     }
     async ping() {
         // Connecting success doesn't mean the database working well too so we need ping()
@@ -38,19 +48,20 @@ class MongodbManager {
             return status;
         }
         finally {
-            if(status){
+            if (status) {
                 console.warn("Ping success");
-            }else{
+            } else {
                 console.error("Error occurred when ping to the database");
             }
         }
     }
-    async close(){
-        await this.client.close();  
+    async close() {
+        await this.client.close();
     }
 }
 
 const db = new MongodbManager("to-do-list", process.env.MONGODB_URI)
-await db.connect()
-await db.ping()
-await db.close()
+
+module.exports = {
+    db
+}

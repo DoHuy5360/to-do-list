@@ -16,11 +16,17 @@ contextBridge.exposeInMainWorld("versions", {
 	chrome: () => process.versions.chrome,
 	electron: () => process.versions.electron,
 });
-contextBridge.exposeInMainWorld("menuBarAPI", {
-	handleOption01: (callback) => ipcRenderer.on("openPopup", callback),
-	handleOption02: (callback) => ipcRenderer.on("option02", callback),
-});
+
 contextBridge.exposeInMainWorld("electronAPI", {
 	ping: () => ipcRenderer.invoke("test:ping"),
 	ping02: (arg) => ipcRenderer.send("test:ping02", arg),
+	getEventList: () => ipcRenderer.invoke("getEventList"),
 });
+
+contextBridge.exposeInMainWorld('task', {
+	registerCallback: (callback) => {
+		ipcRenderer.on('task:display', (event, data) => {
+			callback(data);
+		});
+	},
+})

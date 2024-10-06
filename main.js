@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain, Menu } = require("electron");
 const path = require("path");
+const { db } = require("./connections/mongodb");
 
 function getView(name) {
 	return `./views/${name}.html`
@@ -8,13 +9,17 @@ function getView(name) {
 const isMac = process.platform !== "darwin";
 const isDev = process.env.NODE_ENV !== "development";
 const createWindow = () => {
+	const { screen } = require('electron');
+	const { width, height } = screen.getPrimaryDisplay().workAreaSize;
 	const win = new BrowserWindow({
-		width: 600,
-		height: 600,
+		width,
+		height,
 		webPreferences: {
+			contextIsolation: true,
 			preload: path.join(__dirname, "preload.js"),
 		},
 	});
+	win.maximize()
 
 	if (isDev) {
 		win.webContents.openDevTools();
@@ -24,19 +29,31 @@ const createWindow = () => {
 			label: app.name,
 			submenu: [
 				{
-					click: () => win.webContents.send("openPopup", 1),
+					click: () => createPopupWindow(),
 					label: "open popup",
 				},
 				{
 					click: () => win.webContents.send("option02", -1),
 					label: "view 2",
 				},
+				{
+					click: () => win.webContents.send('event-name', "12983913"),
+					label: "shooting event with data",
+				},
 			],
 		},
 	]);
 
 	Menu.setApplicationMenu(menu);
-	win.loadFile("./views/index.html");
+	win.loadFile("./views/index.html")
+		.then(async () => {
+			if (!db.isConnected) {
+				await db.connect()
+			}
+		})
+		.then(async () => {
+			win.webContents.send('task:display', await db.events.find({}).toArray())
+		});
 	return {
 		win,
 	};
@@ -45,6 +62,7 @@ let popupWindow;
 function createPopupWindow() {
 	const { screen } = require('electron');
 	const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+
 
 	const WINDOW_WIDTH = 600;
 	const WINDOW_HEIGHT = 400;
@@ -78,25 +96,40 @@ function closePopupWindow() {
 	}
 }
 
-app.on("ready", () => {
+app.on("ready", async () => {
 	const { win } = createWindow();
-	ipcMain.on("openPopup", (event, arg) => {
-		createPopupWindow()
-	});
+
 	ipcMain.on("view2", (event, arg) => {
 		win.loadFile("./views/second.html");
 	});
 	ipcMain.handle("test:ping", () => "pong");
-	ipcMain.on("test:ping02", (event, arg) => console.log(arg));
 
 	app.on("activate", () => {
 		const isNoWindowExisting = BrowserWindow.getAllWindows().length === 0;
 		if (isNoWindowExisting) createWindow();
 	});
-	ipcMain.on("closePopup", () => {
-		console.log("closePopup")
+	//  task
+	ipcMain.handle("task:save:request", async (event, arg) => {
+		const { acknowledged } = await db.events.insertOne({
+			content: arg
+		})
+		return acknowledged
+	});
+
+	// popup
+	ipcMain.on("popup:close", () => {
 		closePopupWindow()
 	})
+
+
+	// 
+	ipcMain.handle("getEventList", async () => {
+		return await db.events.find({}).toArray()
+	})
+
+
+	// 
+
 });
 
 app.on("window-all-closed", () => {

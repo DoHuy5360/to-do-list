@@ -1,12 +1,21 @@
+const listEvent = document.querySelector("#listEvent")
 const clickBtn = document.querySelector("#click");
+
 clickBtn.addEventListener("click", async (e) => {
-	const de = await window.electronAPI.ping();
-	window.electronAPI.ping02("pong02");
+	const data = await window.electronAPI.getEventList()
+	data.forEach(item => {
+		const li = document.createElement('li');
+		li.textContent = item.content
+		listEvent.appendChild(li);
+	});
 });
 
-window.menuBarAPI.handleOption01((event, arg) => {
-	event.sender.send("openPopup", arg);
-});
-window.menuBarAPI.handleOption02((event, arg) => {
-	event.sender.send("view2", arg);
+document.addEventListener('DOMContentLoaded', () => {
+	window.task.registerCallback((data) => {
+		data.forEach(item => {
+			const li = document.createElement('li');
+			li.textContent = item.content
+			listEvent.appendChild(li);
+		});
+	});
 });
