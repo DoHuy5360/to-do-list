@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, Menu, Tray } = require("electron");
 const path = require("path");
 const { db } = require("./connections/mongodb");
 const { CronJob } = require("cron");
+const moment = require("moment");
 
 function getView(name) {
     return `./views/${name}.html`;
@@ -66,7 +67,7 @@ const createWindow = () => {
         .then(async () => {
             win.webContents.send(
                 "task:display",
-                await db.events.find({}).toArray(),
+                await db.tasks.find({}).toArray(),
             );
         })
         .catch((e) => {
@@ -131,8 +132,10 @@ app.on("ready", async () => {
     });
     //  task
     ipcMain.handle("task:save:request", async (event, arg) => {
-        const { acknowledged } = await db.events.insertOne({
+        const vietnamTime = moment();
+        const { acknowledged } = await db.tasks.insertOne({
             content: arg,
+            createdAt: vietnamTime.format("DD/MM/YYYY - HH:mm"),
         });
         return acknowledged;
     });
@@ -144,7 +147,7 @@ app.on("ready", async () => {
 
     //
     ipcMain.handle("getEventList", async () => {
-        return await db.events.find({}).toArray();
+        return await db.tasks.find({}).toArray();
     });
 
     //
